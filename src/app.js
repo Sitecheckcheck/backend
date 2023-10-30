@@ -1,7 +1,7 @@
 const http = require("http");
 const getUsers = require("./modules/users");
+require("dotenv").config();
 
-process.env.PORT = 3003
 const port = process.env.PORT || 3000
 
 const server = http.createServer((req, res) => {
@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
       res.statusCode = 200;
       res.statusMessage = "ok";
       res.header = "Content-Type: text/plain";
-      res.write(`Hello, .`);
+      res.write(`Hello, ${url.searchParams.get("hello")}.`);
       res.end();
 
       return;
