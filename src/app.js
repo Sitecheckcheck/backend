@@ -1,57 +1,25 @@
-const http = require("http");
-const getUsers = require("./modules/users");
 require("dotenv").config();
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const express = require("express");
+const userRouter = require("./routes/users");
+const bookRouter = require("./routes/books");
+const notFoundRouter = require("./routes/notFound");
+const mongoose = require("mongoose");
 
-const port = process.env.PORT || 3000
+const app = express();
+app.use(bodyParser.json());
 
-const server = http.createServer((req, res) => {
-  const url = new URL(req.url, `http://127.0.0.1:${port}`);
+app.use(userRouter);
+app.use(bookRouter);
+app.use(notFoundRouter);
 
-  if (url.searchParams.has("users")) {
-    res.statusCode = 200;
-    res.statusMessage = "ok";
-    res.header = "Content-Type: application/json";
-    res.write(getUsers());
-    res.end();
+const { PORT = 3000, API_URL = "http://127.0.0.1", MONGO_URL } = process.env;
 
-    return;
-  }
+mongoose.connect(MONGO_URL);
 
-  if (url.searchParams.has("hello")) {
-    if (url.searchParams.get("hello") !== "") {
-      res.statusCode = 200;
-      res.statusMessage = "ok";
-      res.header = "Content-Type: text/plain";
-      res.write(`Hello, ${url.searchParams.get("hello")}.`);
-      res.end();
+app.use(cors());
 
-      return;
-    }
-
-    res.statusCode = 400;
-    res.statusMessage = "error";
-    res.header = "Content-Type: text/plain";
-    res.write("Enter a name");
-    res.end();
-
-    return;
-  }
-
-  if (req.url === "/") {
-    res.statusCode = 200;
-    res.statusMessage = "ok";
-    res.header = "Content-Type: text/plain";
-    res.write("Hello, World!");
-    res.end();
-
-    return;
-  }
-
-  res.statusCode = 500;
-  res.statusMessage = "error";
-  res.end();
-});
-
-server.listen(port, () => {
-  console.log(`сервер запущен по адресу http://127.0.0.1:${port}`);
+app.listen(PORT, () => {
+  console.log(`сервер запущен по адресу ${API_URL}:${PORT}`);
 });
